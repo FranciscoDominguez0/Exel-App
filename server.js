@@ -43,6 +43,13 @@ db.serialize(() => {
     }
   });
 
+  // Insert Rbonilla user if not exists
+  db.get("SELECT * FROM users WHERE username = 'Rbonilla'", (err, row) => {
+    if (!row) {
+      db.run("INSERT INTO users (username, password) VALUES ('Rbonilla', 'Panama26')");
+    }
+  });
+
   // Insert default license if not exists (30 days from now)
   db.get("SELECT * FROM license WHERE id = 1", (err, row) => {
     if (!row) {
