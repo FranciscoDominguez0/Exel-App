@@ -3,25 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Procesador de Datos - Muestreo</title>
+<title>Procesador de Datos</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-color: #09090b;
-    --card-bg: #18181b;
-    --border-light: #27272a;
-    --text-primary: #f4f4f5;
-    --text-secondary: #a1a1aa;
-    --accent-dark: #3b82f6;
-    --accent-dark-hover: #2563eb;
-    --accent-blue: #3b82f6;
-    --accent-blue-hover: #60a5fa;
-    --accent-blue-light: rgba(59, 130, 246, 0.1);
-    --surface: #27272a;
-    --surface-hover: #3f3f46;
-    --danger: #f87171;
-    --danger-bg: rgba(248, 113, 113, 0.1);
+    --bg-color: #0d1117;
+    --card-bg: #161b22;
+    --border-light: #30363d;
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --accent-dark: #238636;
+    --accent-dark-hover: #2ea043;
+    --accent-blue: #2f81f7;
+    --accent-blue-hover: #388bfd;
+    --accent-blue-light: rgba(47, 129, 247, 0.1);
+    --surface: #21262d;
+    --surface-hover: #30363d;
+    --danger: #f85149;
+    --danger-bg: rgba(248, 81, 73, 0.1);
     --font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
   
@@ -31,9 +32,6 @@
     margin: 0;
     padding: 0;
     background-color: var(--bg-color);
-    background-image: 
-      radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-      radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
     color: var(--text-primary);
     font-family: var(--font-family);
     display: flex;
@@ -51,16 +49,16 @@
   .card {
     background-color: var(--card-bg);
     border: 1px solid var(--border-light);
-    border-radius: 16px;
-    padding: 48px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0,0,0,1);
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 8px 24px rgba(1, 4, 9, 1);
   }
 
   .header {
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 36px;
+    margin-bottom: 32px;
     border-bottom: 1px solid var(--border-light);
     padding-bottom: 24px;
   }
@@ -71,13 +69,14 @@
     justify-content: center;
     width: 44px;
     height: 44px;
-    background-color: var(--accent-dark);
-    color: white;
-    border-radius: 12px;
+    background-color: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
   }
   
   .header-title {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
@@ -86,30 +85,30 @@
   .header-subtitle {
     font-size: 13px;
     color: var(--text-secondary);
-    margin: 3px 0 0 0;
+    margin: 4px 0 0 0;
   }
   
   h1 {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 600;
     margin: 0 0 8px 0;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
   }
   
   p.subtitle {
     color: var(--text-secondary);
-    font-size: 14.5px;
-    margin: 0 0 36px 0;
-    line-height: 1.6;
+    font-size: 14px;
+    margin: 0 0 32px 0;
+    line-height: 1.5;
   }
   
   .drop-area {
     border: 2px dashed var(--border-light);
-    border-radius: 12px;
-    padding: 56px 24px;
+    border-radius: 8px;
+    padding: 48px 24px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
     background-color: var(--bg-color);
   }
   
@@ -117,25 +116,25 @@
     border-color: var(--accent-blue);
     background-color: var(--accent-blue-light);
   }
-  
+
   .drop-area svg {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     color: var(--accent-blue);
     margin-bottom: 16px;
-    opacity: 0.9;
+    opacity: 0.8;
   }
   
   .drop-area p {
     margin: 0;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
     color: var(--text-primary);
   }
   
   .drop-area span {
     display: block;
-    font-size: 13px;
+    font-size: 12.5px;
     color: var(--text-secondary);
     margin-top: 8px;
   }
@@ -150,7 +149,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 56px 0;
+    padding: 48px 0;
   }
   
   .loader-container.active {
@@ -158,21 +157,33 @@
   }
   
   .spinner {
-    width: 36px;
-    height: 36px;
-    border: 3px solid var(--border-light);
-    border-radius: 50%;
-    border-top-color: var(--accent-blue);
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 20px;
+    width: 180px;
+    height: 4px;
+    background-color: var(--surface);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
   }
   
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+  .spinner::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 30%;
+    background-color: var(--accent-blue);
+    border-radius: 4px;
+    animation: sweep 1.5s infinite ease-in-out;
+  }
+  
+  @keyframes sweep {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(350%); }
+    100% { transform: translateX(-100%); }
   }
   
   .status-text {
-    font-size: 14.5px;
+    font-size: 14px;
     font-weight: 500;
     color: var(--text-secondary);
   }
@@ -183,8 +194,8 @@
     text-align: center;
     background-color: var(--danger-bg);
     padding: 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-radius: 6px;
+    border: 1px solid rgba(248, 81, 73, 0.4);
   }
   
   /* Results section */
@@ -200,27 +211,25 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
-    margin-bottom: 36px;
+    margin-bottom: 32px;
   }
   
   .stat-card {
     background-color: var(--bg-color);
     border: 1px solid var(--border-light);
-    padding: 24px;
-    border-radius: 12px;
+    padding: 20px;
+    border-radius: 8px;
   }
   
   .stat-label {
     font-size: 12px;
     color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   
   .stat-value {
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 600;
     color: var(--text-primary);
   }
@@ -230,24 +239,20 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
+    padding: 12px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
     font-family: inherit;
-  }
-  
-  .btn:active {
-    transform: scale(0.99);
   }
   
   .btn-primary {
     background-color: var(--accent-dark);
-    color: white;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    border-color: rgba(240, 246, 252, 0.1);
   }
   
   .btn-primary:hover {
@@ -255,42 +260,36 @@
   }
   
   .btn-secondary {
-    background-color: transparent;
-    color: var(--text-secondary);
-    border: 1px solid var(--border-light);
-    margin-top: 14px;
+    background-color: var(--surface);
+    color: var(--text-primary);
+    border-color: var(--border-light);
+    margin-top: 12px;
   }
   
   .btn-secondary:hover {
-    color: var(--text-primary);
-    background-color: var(--surface);
+    background-color: var(--surface-hover);
+    border-color: #8b949e;
   }
 
   @media (max-width: 640px) {
     .card {
-      padding: 32px 24px;
+      padding: 24px;
       border-radius: 12px;
     }
     .header {
-      margin-bottom: 28px;
-      padding-bottom: 20px;
-    }
-    h1 { 
-      font-size: 20px; 
+      margin-bottom: 24px;
+      padding-bottom: 16px;
     }
     .stats {
       grid-template-columns: 1fr;
       gap: 12px;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
     .stat-card {
-      padding: 16px 20px;
-    }
-    .stat-value { 
-      font-size: 22px; 
+      padding: 16px;
     }
     .drop-area {
-      padding: 40px 16px;
+      padding: 32px 16px;
     }
   }
 </style>
@@ -309,8 +308,8 @@
         </svg>
       </div>
       <div>
-        <div class="header-title">Herramienta de Muestreo</div>
-        <div class="header-subtitle">Extracción de datos a 15 minutos</div>
+        <div class="header-title">Procesador de Datos</div>
+        <div class="header-subtitle">Extracción automática de información</div>
       </div>
     </div>
 
