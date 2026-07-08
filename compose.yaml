@@ -5,3 +5,5 @@ services:
     ports:
       - "8080:80"
     restart: unless-stopped
+    volumes:
+      - ./data:/usr/src/app/data

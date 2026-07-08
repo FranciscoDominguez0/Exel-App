@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Procesador de Datos</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-color: #0d1117;
+    --card-bg: #161b22;
+    --border-light: #30363d;
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --accent-dark: #238636;
+    --accent-dark-hover: #2ea043;
+    --accent-blue: #2f81f7;
+    --accent-blue-hover: #388bfd;
+    --accent-blue-light: rgba(47, 129, 247, 0.1);
+    --surface: #21262d;
+    --surface-hover: #30363d;
+    --danger: #f85149;
+    --danger-bg: rgba(248, 81, 73, 0.1);
+    --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  
+  * { box-sizing: border-box; }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 580px;
+    padding: 20px;
+  }
+  
+  .card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 8px 24px rgba(1, 4, 9, 1);
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 24px;
+  }
+
+  .header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background-color: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+  }
+  
+  .header-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  
+  .header-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+  }
+  
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.01em;
+  }
+  
+  p.subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 0 0 32px 0;
+    line-height: 1.5;
+  }
+  
+  .drop-area {
+    border: 2px dashed var(--border-light);
+    border-radius: 8px;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    background-color: var(--bg-color);
+  }
+  
+  .drop-area:hover, .drop-area.drag-over {
+    border-color: var(--accent-blue);
+    background-color: var(--accent-blue-light);
+  }
+
+  .drop-area svg {
+    width: 36px;
+    height: 36px;
+    color: var(--accent-blue);
+    margin-bottom: 16px;
+    opacity: 0.8;
+  }
+  
+  .drop-area p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  
+  .drop-area span {
+    display: block;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+  }
+  
+  input[type="file"] {
+    display: none;
+  }
+  
+  /* Loading Overlay */
+  .loader-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 0;
+  }
+  
+  .loader-container.active {
+    display: flex;
+  }
+  
+  .spinner {
+    width: 180px;
+    height: 4px;
+    background-color: var(--surface);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  
+  .spinner::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 30%;
+    background-color: var(--accent-blue);
+    border-radius: 4px;
+    animation: sweep 1.5s infinite ease-in-out;
+  }
+  
+  @keyframes sweep {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(350%); }
+    100% { transform: translateX(-100%); }
+  }
+  
+  .status-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .status-text.error {
+    color: var(--danger);
+    margin-top: 20px;
+    text-align: center;
+    background-color: var(--danger-bg);
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(248, 81, 73, 0.4);
+  }
+  
+  /* Results section */
+  .results-container {
+    display: none;
+  }
+  
+  .results-container.active {
+    display: block;
+  }
+  
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  
+  .stat-card {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-light);
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    font-family: inherit;
+  }
+  
+  .btn-primary {
+    background-color: var(--accent-dark);
+    color: #ffffff;
+    border-color: rgba(240, 246, 252, 0.1);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--accent-dark-hover);
+  }
+  
+  .btn-secondary {
+    background-color: var(--surface);
+    color: var(--text-primary);
+    border-color: var(--border-light);
+    margin-top: 12px;
+  }
+  
+  .btn-secondary:hover {
+    background-color: var(--surface-hover);
+    border-color: #8b949e;
+  }
+
+  /* License System */
+  .license-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    background-color: var(--surface);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+  }
+  .license-badge.expired {
+    background-color: var(--danger-bg);
+    border-color: rgba(248, 81, 73, 0.4);
+    color: var(--danger);
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .modal-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 32px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 24px rgba(1, 4, 9, 1);
+  }
+  .modal-card h2 { margin-top: 0; font-size: 18px; margin-bottom: 24px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 13px; margin-bottom: 6px; color: var(--text-secondary); }
+  .form-group input { 
+    width: 100%; padding: 10px; border-radius: 6px; 
+    border: 1px solid var(--border-light); 
+    background-color: var(--bg-color); color: var(--text-primary); 
+    font-family: inherit; outline: none;
+  }
+  .form-group input:focus { border-color: var(--accent-blue); }
+
+  .settings-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+  }
+  
+  .settings-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  
+  .settings-group input {
+    width: 80px;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    text-align: right;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  
+  .settings-group input:focus {
+    border-color: var(--accent-blue);
+  }
+
+  @media (max-width: 640px) {
+    .card {
+      padding: 24px;
+      border-radius: 12px;
+    }
+    .header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+    }
+    .stats {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      padding: 16px;
+    }
+    .drop-area {
+      padding: 32px 16px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="card" style="position: relative;">
+    <div id="licenseBadge" class="license-badge">Verificando...</div>
+    
+    <div id="expired-view" style="display: none; text-align: center; padding: 40px 0;">
+      <h2 style="color: var(--danger); margin-bottom: 16px;">Licencia Expirada</h2>
+      <p style="color: var(--text-secondary); line-height: 1.6;">El tiempo de uso de esta herramienta se ha agotado.<br>Por favor contacte al administrador para reactivar el sistema.</p>
+    </div>
+    
+    <div class="header">
+      <div class="header-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+      </div>
+      <div>
+        <div class="header-title">Procesador de Datos</div>
+        <div class="header-subtitle">Extracción automática de información</div>
+      </div>
+    </div>
+
+    <div id="main-view">
+      <h1>Cargar Histórico</h1>
+      <p class="subtitle">Adjunte su archivo Excel para comenzar el procesamiento y reducir la muestra de datos.</p>
+      
+      <div class="settings-group">
+        <label for="intervalInput">Frecuencia de extracción (minutos):</label>
+        <input type="number" id="intervalInput" value="15" min="1" max="1440">
+      </div>
+      
+      <div class="drop-area" id="dropArea">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+        <p>Haga clic o arrastre el archivo aquí</p>
+        <span>Formatos compatibles: .xlsx, .xls</span>
+      </div>
+      <input type="file" id="fileInput" accept=".xlsx,.xls">
+      
+      <div id="errorText" class="status-text error" style="display: none;"></div>
+    </div>
+    
+    <div id="loading-view" class="loader-container">
+      <div class="spinner"></div>
+      <div class="status-text" id="loadingText">Procesando y ajustando columnas...</div>
+    </div>
+    
+    <div id="result-view" class="results-container">
+      <h1>Procesamiento Exitoso</h1>
+      <p class="subtitle">El muestreo ha sido completado y las columnas ajustadas correctamente.</p>
+      
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-label">Filas de Entrada</div>
+          <div class="stat-value" id="valBefore">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Filas de Salida</div>
+          <div class="stat-value" id="valAfter">0</div>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary" id="downloadBtn">Descargar Archivo Generado</button>
+      <button class="btn btn-secondary" id="resetBtn">Procesar un nuevo archivo</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- Modals de Admin -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-card">
+    <h2>Login de Administrador</h2>
+    <div class="form-group">
+      <label>Usuario</label>
+      <input type="text" id="adminUser">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="adminPass">
+    </div>
+    <div id="loginError" class="status-text error" style="display: none; margin-top:0; margin-bottom: 16px;">Credenciales incorrectas</div>
+    <button class="btn btn-primary" id="loginBtn">Ingresar</button>
+    <button class="btn btn-secondary" id="closeLoginBtn">Cancelar</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="adminPanelModal">
+  <div class="modal-card">
+    <h2>Panel de Control</h2>
+    <p class="subtitle" style="margin-bottom: 24px;">Gestión de la licencia del sistema.</p>
+    <button class="btn btn-primary" id="renewBtn">Activar / Renovar (30 días)</button>
+    <button class="btn btn-secondary" id="cancelLicenseBtn" style="border-color: var(--danger); color: var(--danger);">Cancelar Licencia Inmediatamente</button>
+    <button class="btn btn-secondary" id="closeAdminBtn" style="margin-top: 24px;">Cerrar Panel</button>
+  </div>
+</div>
+
+<script>
+  const dropArea = document.getElementById('dropArea');
+  const fileInput = document.getElementById('fileInput');
+  const mainView = document.getElementById('main-view');
+  const loadingView = document.getElementById('loading-view');
+  const resultView = document.getElementById('result-view');
+  const errorText = document.getElementById('errorText');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const valBefore = document.getElementById('valBefore');
+  const valAfter = document.getElementById('valAfter');
+  
+  let outputWorkbook = null;
+  let outputFilename = null;
+  
+  let adminToken = localStorage.getItem('exel_admin_token') || '';
+  const licenseBadge = document.getElementById('licenseBadge');
+  const expiredView = document.getElementById('expired-view');
+  
+  const checkLicense = async () => {
+    try {
+      const res = await fetch('/api/license');
+      const data = await res.json();
+      
+      if (!data.valid) {
+        licenseBadge.textContent = 'Licencia Expirada';
+        licenseBadge.classList.add('expired');
+        return false;
+      } else {
+        licenseBadge.textContent = `Quedan ${data.daysLeft} días`;
+        licenseBadge.classList.remove('expired');
+        return true;
+      }
+    } catch (e) {
+      console.error(e);
+      licenseBadge.textContent = 'Error de Conexión';
+      licenseBadge.classList.add('expired');
+      return false;
+    }
+  };
+  
+  const showView = async (view) => {
+    mainView.style.display = 'none';
+    loadingView.classList.remove('active');
+    resultView.classList.remove('active');
+    errorText.style.display = 'none';
+    expiredView.style.display = 'none';
+    
+    const isValid = await checkLicense();
+    if (!isValid) {
+      expiredView.style.display = 'block';
+      return;
+    }
+    
+    if (view === 'main') mainView.style.display = 'block';
+    if (view === 'loading') loadingView.classList.add('active');
+    if (view === 'result') resultView.classList.add('active');
+  };
+  
+  const showError = async (msg) => {
+    await showView('main');
+    errorText.textContent = msg;
+    errorText.style.display = 'block';
+  };
+  
+  dropArea.addEventListener('click', () => fileInput.click());
+  dropArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropArea.classList.add('drag-over');
+  });
+  dropArea.addEventListener('dragleave', () => dropArea.classList.remove('drag-over'));
+  dropArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropArea.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) handleFileStart(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length) handleFileStart(e.target.files[0]);
+  });
+  
+  resetBtn.addEventListener('click', async () => {
+    await showView('main');
+    fileInput.value = '';
+    outputWorkbook = null;
+  });
+  
+  const handleFileStart = async (file) => {
+    const isValid = await checkLicense();
+    if (!isValid) {
+      await showView('main');
+      return;
+    }
+    
+    await showView('loading');
+    errorText.style.display = 'none';
+    
+    // Usamos setTimeout para permitir que la interfaz se actualice y muestre el loader 
+    // antes de que el procesamiento bloquee el hilo principal
+    setTimeout(() => {
+      processFile(file);
+    }, 150);
+  };
+  
+  const pad = (n) => n.toString().padStart(2, '0');
+  const fmtDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const fmtShort = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  
+  const toJsDate = (val) => {
+    if (val instanceof Date) return val;
+    if (typeof val === 'number') {
+      const parsed = XLSX.SSF.parse_date_code(val);
+      if (!parsed) return null;
+      return new Date(parsed.y, parsed.m - 1, parsed.d, parsed.H, parsed.M, Math.round(parsed.S));
+    }
+    if (typeof val === 'string') {
+      const d = new Date(val.replace(' ', 'T'));
+      if (!isNaN(d.getTime())) return d;
+    }
+    return null;
+  };
+  
+  const findDataSheet = (workbook) => {
+    const names = workbook.SheetNames;
+    let candidate = names.find(n => /historical|hist[oó]ric/i.test(n));
+    if (!candidate && names.length > 1) candidate = names[1];
+    if (!candidate) candidate = names[0];
+    return candidate;
+  };
+  
+  // Calcula el ancho ideal de cada columna para que no se corten los datos
+  const autofitColumns = (aoa) => {
+    const colWidths = [];
+    for (let r = 0; r < aoa.length; r++) {
+      const row = aoa[r];
+      if (!row) continue;
+      for (let c = 0; c < row.length; c++) {
+        const cell = row[c];
+        if (cell === null || cell === undefined) continue;
+        const cellValue = cell.toString();
+        const length = cellValue.length;
+        if (!colWidths[c] || colWidths[c].wch < length) {
+          // Limitamos el ancho a 50 para evitar columnas excesivamente anchas
+          colWidths[c] = { wch: Math.min(length + 2, 50) };
+        }
+      }
+    }
+    return colWidths;
+  };
+  
+  const processFile = (file) => {
+    const reader = new FileReader();
+    reader.onerror = () => showError('Error al leer el archivo.');
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+        
+        const sheetName = findDataSheet(workbook);
+        const ws = workbook.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+        
+        if (!rows || rows.length < 4) {
+          showError(`La hoja "${sheetName}" no tiene el formato esperado.`);
+          return;
+        }
+        
+        let headerIdx = rows.findIndex(r => r && typeof r[0] === 'string' && r[0].trim().toLowerCase() === 'time');
+        if (headerIdx === -1) headerIdx = 2;
+        
+        const preambleRows = rows.slice(0, headerIdx + 1);
+        const dataRows = rows.slice(headerIdx + 1);
+        
+        const intervalStr = document.getElementById('intervalInput').value;
+        const interval = parseInt(intervalStr, 10) || 15;
+        const kept = [];
+        
+        let nextTargetMinutes = null;
+        
+        for (const row of dataRows) {
+          if (!row || row[0] === null || row[0] === undefined || row[0] === '') continue;
+          const d = toJsDate(row[0]);
+          if (!d) continue;
+          
+          // Calculamos el minuto absoluto eliminando los segundos y milisegundos
+          const currentTotalMinutes = Math.floor(d.getTime() / 60000);
+          
+          if (nextTargetMinutes === null) {
+            nextTargetMinutes = currentTotalMinutes;
+          }
+          
+          // Si el minuto actual alcanzó o superó el objetivo, lo guardamos
+          if (currentTotalMinutes >= nextTargetMinutes) {
+            const newRow = row.slice();
+            newRow[0] = fmtDate(d);
+            kept.push(newRow);
+            
+            // Avanzamos el objetivo hacia el siguiente intervalo
+            while (nextTargetMinutes <= currentTotalMinutes) {
+              nextTargetMinutes += interval;
+            }
+          }
+        }
+        
+        if (kept.length === 0) {
+          showError(`No se encontraron registros en intervalos de ${interval} minutos exactos.`);
+          return;
+        }
+        
+        const finalAoa = preambleRows.concat(kept);
+        const newWs = XLSX.utils.aoa_to_sheet(finalAoa);
+        
+        // Asignar el ancho calculado a las columnas para evitar que se corten los datos
+        newWs['!cols'] = autofitColumns(finalAoa);
+        
+        const newWorkbook = XLSX.utils.book_new();
+        workbook.SheetNames.forEach(name => {
+          if (name === sheetName) {
+            XLSX.utils.book_append_sheet(newWorkbook, newWs, name);
+          } else {
+            XLSX.utils.book_append_sheet(newWorkbook, workbook.Sheets[name], name);
+          }
+        });
+        
+        outputWorkbook = newWorkbook;
+        const today = new Date();
+        outputFilename = `Historico_${fmtShort(today)}.xlsx`;
+        
+        valBefore.textContent = dataRows.filter(r => r && r[0]).length.toLocaleString('es');
+        valAfter.textContent = kept.length.toLocaleString('es');
+        
+        showView('result');
+      } catch (err) {
+        console.error(err);
+        showError('Ocurrió un error procesando el archivo. ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+  
+  downloadBtn.addEventListener('click', () => {
+    if (!outputWorkbook) return;
+    setTimeout(async () => {
+      try {
+        XLSX.writeFile(outputWorkbook, outputFilename);
+      } catch (err) {
+        console.error(err);
+        showError('Error al guardar el archivo.');
+      }
+      await showView('result');
+    }, 150);
+  });
+  
+  // --- Lógica del Panel de Administración Oculto ---
+  let keyBuffer = '';
+  document.addEventListener('keydown', (e) => {
+    // Si estamos escribiendo en un input, ignorar
+    if (e.target.tagName === 'INPUT') return;
+    
+    keyBuffer += e.key;
+    if (keyBuffer.length > 6) keyBuffer = keyBuffer.slice(-6);
+    if (keyBuffer === '/admin') {
+      document.getElementById('loginModal').classList.add('active');
+      keyBuffer = '';
+    }
+  });
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const username = document.getElementById('adminUser').value;
+    const password = document.getElementById('adminPass').value;
+    
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        adminToken = data.token;
+        localStorage.setItem('exel_admin_token', adminToken);
+        document.getElementById('loginModal').classList.remove('active');
+        document.getElementById('adminPanelModal').classList.add('active');
+        document.getElementById('loginError').style.display = 'none';
+        document.getElementById('adminUser').value = '';
+        document.getElementById('adminPass').value = '';
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+        document.getElementById('loginError').textContent = 'Credenciales incorrectas';
+      }
+    } catch (e) {
+      document.getElementById('loginError').textContent = 'Error de conexión';
+      document.getElementById('loginError').style.display = 'block';
+    }
+  });
+  
+  document.getElementById('closeLoginBtn').addEventListener('click', () => {
+    document.getElementById('loginModal').classList.remove('active');
+  });
+
+  document.getElementById('renewBtn').addEventListener('click', async () => {
+    await fetch('/api/license/renew', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken })
+    });
+    await showView('main');
+    document.getElementById('adminPanelModal').classList.remove('active');
+  });
+  
+  document.getElementById('cancelLicenseBtn').addEventListener('click', async () => {
+    await fetch('/api/license/cancel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken })
+    });
+    await showView('main');
+    document.getElementById('adminPanelModal').classList.remove('active');
+  });
+  
+  document.getElementById('closeAdminBtn').addEventListener('click', () => {
+    document.getElementById('adminPanelModal').classList.remove('active');
+  });
+  
+  // Inicialización de la vista al cargar la página
+  showView('main');
+</script>
+</body>
+</html>

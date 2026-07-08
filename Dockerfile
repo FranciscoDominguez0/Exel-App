@@ -1,7 +1,13 @@
-FROM nginx:alpine
-# Copiamos nuestra app.html y la renombramos como index.html
-COPY app.html /usr/share/nginx/html/index.html
-# Copiamos la carpeta de assets (favicon, etc)
-COPY assets/ /usr/share/nginx/html/assets/
+FROM node:18-alpine
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+RUN npm install
+
+COPY server.js ./
+COPY public/ ./public/
 
 EXPOSE 80
+
+CMD ["npm", "start"]
