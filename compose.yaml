@@ -1,0 +1,7 @@
+services:
+  procesador-excel:
+    build: .
+    container_name: procesador-excel-app
+    ports:
+      - "8080:80"
+    restart: unless-stopped
