@@ -1,9 +1,32 @@
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: exel-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: Panama26
+      MYSQL_DATABASE: exeldb
+      MYSQL_USER: Administrador
+      MYSQL_PASSWORD: Panama26
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
   procesador-excel:
     build: .
     container_name: procesador-excel-app
     ports:
       - "8080:80"
     restart: unless-stopped
-    volumes:
-      - ./data:/usr/src/app/data
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: Administrador
+      DB_PASSWORD: Panama26
+      DB_NAME: exeldb
+      PORT: 80
+
+volumes:
+  mysql_data:

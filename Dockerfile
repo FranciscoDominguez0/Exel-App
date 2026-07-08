@@ -6,6 +6,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY server.js ./
+COPY src/ ./src/
 COPY public/ ./public/
 
 EXPOSE 80
