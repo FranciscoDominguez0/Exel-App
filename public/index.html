@@ -38,6 +38,20 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+  
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url('assets/fondo vigitec.jpeg');
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px) brightness(0.6);
+    z-index: -1;
+    transform: scale(1.1); /* Previene bordes blancos por el difuminado */
   }
   
   .container {
