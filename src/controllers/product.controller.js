@@ -51,10 +51,57 @@ async function deleteProduct(req, res) {
   } catch (e) { res.status(500).json({ error: 'Database error' }); }
 }
 
+async function getCatalog(req, res) {
+  try {
+    const pool = getPool();
+    const userId = req.userId;
+    
+    // Get all active products
+    const [products] = await pool.execute('SELECT * FROM products WHERE active = 1 ORDER BY name');
+    
+    // Get user's current licenses
+    const [licenses] = await pool.execute('SELECT product_id FROM user_licenses WHERE user_id = ? AND expiration_date > ?', [userId, Date.now()]);
+    const licensedProductIds = new Set(licenses.map(l => l.product_id));
+
+    // Get user's pending requests
+    const [requests] = await pool.execute('SELECT product_id FROM tool_requests WHERE user_id = ? AND status = "pending"', [userId]);
+    const requestedProductIds = new Set(requests.map(r => r.product_id));
+
+    const catalog = products.map(p => ({
+      ...p,
+      hasAccess: licensedProductIds.has(p.id),
+      isRequested: requestedProductIds.has(p.id)
+    }));
+
+    res.json({ success: true, catalog });
+  } catch (e) { res.status(500).json({ error: 'Database error' }); }
+}
+
+async function requestProduct(req, res) {
+  const { productId } = req.body;
+  if (!productId) return res.status(400).json({ error: 'Product ID requerido.' });
+  
+  try {
+    const pool = getPool();
+    const userId = req.userId;
+    
+    // Check if already requested or licensed
+    const [existing] = await pool.execute('SELECT id FROM tool_requests WHERE user_id = ? AND product_id = ? AND status = "pending"', [userId, productId]);
+    if (existing.length > 0) return res.status(400).json({ error: 'Ya has solicitado esta herramienta.' });
+    
+    await pool.execute('INSERT INTO tool_requests (user_id, product_id) VALUES (?, ?)', [userId, productId]);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Database error' });
+  }
+}
+
 module.exports = {
   getPublicProducts,
   getAdminProducts,
   createProduct,
   updateProductActive,
-  deleteProduct
+  deleteProduct,
+  getCatalog,
+  requestProduct
 };

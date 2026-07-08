@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,370 +9,741 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
-<!-- ══════════════════════════════════════════════════════════════
+  <!-- ══════════════════════════════════════════════════════════════
      AUTH SCREEN
      ══════════════════════════════════════════════════════════════ -->
-<div class="screen" id="auth-screen">
-  <div class="auth-wrapper">
+  <div class="screen" id="auth-screen">
+    <div class="auth-wrapper">
 
-    <div class="auth-brand">
-      <div class="auth-brand-icon">
-        <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-        </svg>
-      </div>
-      <h1><span style="color:var(--red-400)">//</span> VIGITEC</h1>
-      <p>Sistema de Procesamiento de Datos</p>
-    </div>
-
-    <div class="auth-card">
-      <div class="auth-tabs">
-        <button class="auth-tab active" data-tab="login">Iniciar Sesión</button>
-        <button class="auth-tab" data-tab="register">Crear Cuenta</button>
+      <div class="auth-brand">
+        <div class="auth-brand-icon">
+          <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+        </div>
+        <h1><span style="color:var(--red-400)">//</span> VIGITEC</h1>
+        <p>Herramientas Vigitec Panama</p>
       </div>
 
-      <!-- Login -->
-      <form class="auth-form active" id="form-login" onsubmit="return false">
-        <div class="form-group">
-          <label for="loginUsername">Usuario</label>
-          <input type="text" id="loginUsername" placeholder="nombre_de_usuario" autocomplete="username">
+      <div class="auth-card">
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login">Iniciar Sesión</button>
+          <button class="auth-tab" data-tab="register">Crear Cuenta</button>
         </div>
-        <div class="form-group">
-          <label for="loginPassword">Contraseña</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
-        </div>
-        <div id="loginAlert" class="auth-alert"></div>
-        <button type="button" class="btn-auth" id="loginBtn">Iniciar Sesión</button>
-      </form>
 
-      <!-- Register -->
-      <form class="auth-form" id="form-register" onsubmit="return false">
-        <div class="form-row">
-          <div class="form-group"><label for="regNombre">Nombre *</label><input type="text" id="regNombre" placeholder="Juan" autocomplete="given-name"></div>
-          <div class="form-group"><label for="regApellido">Apellido *</label><input type="text" id="regApellido" placeholder="Pérez" autocomplete="family-name"></div>
-        </div>
-        <div class="form-group"><label for="regUsername">Usuario *</label><input type="text" id="regUsername" placeholder="juan_perez" autocomplete="username"></div>
-        <div class="form-group"><label for="regCorreo">Correo electrónico *</label><input type="email" id="regCorreo" placeholder="correo@ejemplo.com" autocomplete="email"></div>
-        <div class="form-row">
-          <div class="form-group"><label for="regPassword">Contraseña *</label><input type="password" id="regPassword" placeholder="Mín. 6 caracteres" autocomplete="new-password"></div>
-          <div class="form-group"><label for="regTelefono">Teléfono</label><input type="tel" id="regTelefono" placeholder="+507 6000-0000" autocomplete="tel"></div>
-        </div>
-        <div id="registerAlert" class="auth-alert"></div>
-        <button type="button" class="btn-auth" id="registerBtn">Crear Cuenta</button>
-      </form>
+        <!-- Login -->
+        <form class="auth-form active" id="form-login" onsubmit="return false">
+          <div class="form-group">
+            <label for="loginUsername">Usuario</label>
+            <input type="text" id="loginUsername" placeholder="nombre_de_usuario" autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Contraseña</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <div id="loginAlert" class="auth-alert"></div>
+          <button type="button" class="btn-auth" id="loginBtn">Iniciar Sesión</button>
+        </form>
+
+        <!-- Register -->
+        <form class="auth-form" id="form-register" onsubmit="return false">
+          <div class="form-row">
+            <div class="form-group"><label for="regNombre">Nombre *</label><input type="text" id="regNombre"
+                placeholder="Juan" autocomplete="given-name"></div>
+            <div class="form-group"><label for="regApellido">Apellido *</label><input type="text" id="regApellido"
+                placeholder="Pérez" autocomplete="family-name"></div>
+          </div>
+          <div class="form-group"><label for="regUsername">Usuario *</label><input type="text" id="regUsername"
+              placeholder="juan_perez" autocomplete="username"></div>
+          <div class="form-group"><label for="regCorreo">Correo electrónico *</label><input type="email" id="regCorreo"
+              placeholder="correo@ejemplo.com" autocomplete="email"></div>
+          <div class="form-row">
+            <div class="form-group"><label for="regPassword">Contraseña *</label><input type="password" id="regPassword"
+                placeholder="Mín. 6 caracteres" autocomplete="new-password"></div>
+            <div class="form-group"><label for="regTelefono">Teléfono</label><input type="tel" id="regTelefono"
+                placeholder="+507 6000-0000" autocomplete="tel"></div>
+          </div>
+          <div id="registerAlert" class="auth-alert"></div>
+          <button type="button" class="btn-auth" id="registerBtn">Crear Cuenta</button>
+        </form>
+      </div>
+
     </div>
-
   </div>
-</div>
 
 
-<!-- ══════════════════════════════════════════════════════════════
+  <!-- ══════════════════════════════════════════════════════════════
      APP SCREEN
      ══════════════════════════════════════════════════════════════ -->
-<div class="app-screen" id="app-screen">
+  <div class="app-screen" id="app-screen">
 
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <!-- ────────────── SIDEBAR ────────────── -->
-  <aside class="sidebar" id="sidebar">
+    <!-- ────────────── SIDEBAR ────────────── -->
+    <aside class="sidebar" id="sidebar">
 
-    <div class="sidebar-logo">
-      <div class="logo-icon">
-        <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
-        </svg>
-      </div>
-      <div class="logo-text">
-        <span class="logo-title"><span class="logo-slash">//</span> VIGITEC</span>
-        <span class="logo-sub">Sistema de Datos</span>
-      </div>
-    </div>
-
-    <nav class="sidebar-nav">
-
-      <!-- HERRAMIENTAS — dynamic (built by JS) -->
-      <div class="nav-section" id="toolsSection">
-        <span class="nav-section-label">Herramientas</span>
-        <!-- tool nav items injected here by buildSidebarTools() -->
-      </div>
-
-      <!-- ADMINISTRACIÓN — admin only -->
-      <div class="nav-section" id="adminNav" style="display:none">
-        <div class="nav-divider-label"><span>Admin</span></div>
-
-        <button class="nav-item" data-view="users">
-          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
           </svg>
-          Usuarios
-        </button>
-
-        <button class="nav-item" data-view="products">
-          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-            <rect x="2" y="3" width="20" height="14" rx="2"/>
-            <line x1="8" y1="21" x2="16" y2="21"/>
-            <line x1="12" y1="17" x2="12" y2="21"/>
-          </svg>
-          Productos
-        </button>
-
-        <button class="nav-item" data-view="licenses">
-          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-          Licencias
-        </button>
-
-      </div>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="license-tag" id="sidebarLicenseTag">
-        <div class="license-tag-dot" id="licenseTagDot"></div>
-        <span class="license-tag-text" id="licenseTagText">Verificando...</span>
-      </div>
-      <div class="sidebar-user">
-        <div class="user-avatar" id="userAvatar">U</div>
-        <div style="flex:1;min-width:0">
-          <span class="user-name" id="navUserName">—</span>
-          <span class="user-role" id="navUserRole">Usuario</span>
         </div>
-        <button class="btn-logout" id="logoutBtn" title="Cerrar sesión">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-  </aside>
-
-  <!-- ────────────── MAIN CONTENT ────────────── -->
-  <main class="main-content">
-
-    <!-- Mobile topbar -->
-    <div class="mobile-topbar">
-      <button class="btn-menu" id="btnMenu">
-        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24">
-          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-        </svg>
-      </button>
-      <span style="font-weight:700;font-size:15px;letter-spacing:.05em"><span style="color:var(--red-400)">//</span> VIGITEC</span>
-    </div>
-
-    <!-- ══ NO ACCESS VIEW ══ -->
-    <div class="view" id="view-no-access">
-      <div class="page-header">
-        <div class="page-header-inner"><div><h1>Sin Acceso</h1><p>No tienes licencias activas</p></div></div>
-      </div>
-      <div class="view-body">
-        <div class="card" style="text-align:center;padding:48px 32px">
-          <svg width="48" height="48" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="margin:0 auto 20px" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <h2 style="font-size:20px;margin-bottom:10px;color:var(--text-secondary)">Sin licencias activas</h2>
-          <p style="color:var(--text-muted);font-size:14px;line-height:1.7">Tu cuenta no tiene productos asignados.<br>Contacta al administrador para que te asigne acceso.</p>
+        <div class="logo-text">
+          <span class="logo-title"><span class="logo-slash">//</span> VIGITEC</span>
+          <span class="logo-sub">Sistema de Datos</span>
         </div>
       </div>
-    </div>
 
-    <!-- ══ VIEW: EXCEL PROCESSOR ══ -->
-    <div class="view" id="view-excel">
-      <div class="page-header">
-        <div class="page-header-inner">
-          <div class="page-header-left">
-            <div class="page-header-icon">
-              <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-            </div>
-            <div><h1>Procesador Excel</h1><p>Extracción automática de datos históricos por intervalo</p></div>
+      <nav class="sidebar-nav">
+
+        <!-- DASHBOARD -->
+        <button class="nav-item" data-view="dashboard">
+          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          Dashboard
+        </button>
+
+        <!-- CATÁLOGO -->
+        <button class="nav-item" data-view="catalog" id="navItemCatalog">
+          <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          Catálogo
+        </button>
+
+        <!-- HERRAMIENTAS — dynamic (built by JS) -->
+        <div class="nav-section" id="toolsSection">
+          <span class="nav-section-label">Herramientas</span>
+          <!-- tool nav items injected here by buildSidebarTools() -->
+        </div>
+
+        <!-- ADMINISTRACIÓN — admin only -->
+        <div class="nav-section" id="adminNav" style="display:none">
+          <div class="nav-divider-label"><span>Admin</span></div>
+
+          <button class="nav-item" data-view="users">
+            <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            Usuarios
+          </button>
+
+          <button class="nav-item" data-view="products">
+            <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <rect x="2" y="3" width="20" height="14" rx="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+            Productos
+          </button>
+
+          <button class="nav-item" data-view="licenses">
+            <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            Licencias
+          </button>
+
+          <button class="nav-item" data-view="requests">
+            <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Solicitudes
+          </button>
+
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="license-tag" id="sidebarLicenseTag">
+          <div class="license-tag-dot" id="licenseTagDot"></div>
+          <span class="license-tag-text" id="licenseTagText">Verificando...</span>
+        </div>
+        <div class="sidebar-user">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div style="flex:1;min-width:0">
+            <span class="user-name" id="navUserName">—</span>
+            <span class="user-role" id="navUserRole">Usuario</span>
           </div>
+          <button class="btn-logout" id="logoutBtn" title="Cerrar sesión">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
         </div>
       </div>
-      <div class="view-body">
 
-        <!-- Expired notice -->
-        <div id="expired-view" style="display:none" class="expired-notice">
-          <h2>Licencia Expirada</h2>
-          <p>Tu acceso a esta herramienta ha expirado.<br>Contacta al administrador para renovarla.</p>
-        </div>
+    </aside>
 
-        <!-- Main -->
-        <div id="main-view">
-          <div class="card">
-            <div class="settings-row" style="margin-bottom:20px">
-              <label for="intervalInput">Frecuencia de extracción (minutos)</label>
-              <input type="number" id="intervalInput" value="15" min="1" max="1440">
-            </div>
-            <div class="drop-area" id="dropArea">
-              <svg class="drop-area-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+    <!-- ────────────── MAIN CONTENT ────────────── -->
+    <main class="main-content">
+
+      <!-- Mobile topbar -->
+      <div class="mobile-topbar">
+        <button class="btn-menu" id="btnMenu">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            viewBox="0 0 24 24">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <span style="font-weight:700;font-size:15px;letter-spacing:.05em"><span style="color:var(--red-400)">//</span>
+          VIGITEC</span>
+      </div>
+
+      <!-- ══ VIEW: DASHBOARD ══ -->
+      <div class="view" id="view-dashboard">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div class="page-icon">
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
-              <div class="drop-area-title">Haga clic o arrastre su archivo aquí</div>
-              <div class="drop-area-sub">Formatos compatibles: .xlsx · .xls</div>
             </div>
-            <input type="file" id="fileInput" accept=".xlsx,.xls">
-            <div id="errorText" class="inline-error"></div>
+            <div>
+              <h1>Bienvenido al Ecosistema Vigitec</h1>
+              <p>El motor inteligente para la gestión y estructuración avanzada de datos.</p>
+            </div>
+          </div>
+        </div>
+        <div class="view-body">
+          <div id="user-dashboard-instructions"
+            style="position: relative; overflow: hidden; padding: 56px 40px; border-radius: 24px; background: linear-gradient(135deg, #111111 0%, #1a1a1a 100%); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+
+            <!-- Glowing orb background effect -->
+            <div
+              style="position: absolute; top: -50%; left: -10%; width: 60%; height: 200%; background: radial-gradient(circle, rgba(229,57,53,0.12) 0%, rgba(0,0,0,0) 60%); transform: rotate(25deg); pointer-events: none;">
+            </div>
+            <div
+              style="position: absolute; bottom: -30%; right: -10%; width: 40%; height: 100%; background: radial-gradient(circle, rgba(54,162,235,0.08) 0%, rgba(0,0,0,0) 60%); pointer-events: none;">
+            </div>
+
+            <div
+              style="position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center;">
+              <div
+                style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(229,57,53,0.1); border: 1px solid rgba(229,57,53,0.2); border-radius: 30px; margin-bottom: 24px;">
+                <span
+                  style="width: 8px; height: 8px; border-radius: 50%; background: var(--red-500); box-shadow: 0 0 10px var(--red-500);"></span>
+                <span
+                  style="font-size: 12px; font-weight: 700; color: var(--red-400); letter-spacing: 0.05em; text-transform: uppercase;">Sistema
+                  Activo</span>
+              </div>
+
+              <h2
+                style="font-size: 38px; font-weight: 800; margin-bottom: 16px; color: #ffffff; letter-spacing: -0.02em;">
+                Ecosistema de <span
+                  style="background: linear-gradient(90deg, #ff4b4b, #ff9090); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Herramientas</span>
+              </h2>
+              <p style="color: #a0a0a0; font-size: 16px; line-height: 1.6; max-width: 650px; margin-bottom: 56px;">
+                Vigitec es tu suite privada de soluciones personalizadas. Identificamos las tareas manuales más tediosas
+                de tu día a día y desarrollamos módulos precisos para automatizarlas, ahorrándote horas de trabajo con
+                un solo clic.
+              </p>
+
+              <!-- Steps -->
+              <div
+                style="display: flex; gap: 24px; width: 100%; max-width: 900px; justify-content: space-between; position: relative;">
+
+                <!-- Connecting Line -->
+                <div
+                  style="position: absolute; top: 28px; left: 15%; right: 15%; height: 2px; background: linear-gradient(90deg, rgba(229,57,53,0) 0%, rgba(229,57,53,0.4) 50%, rgba(229,57,53,0) 100%); z-index: 0;">
+                </div>
+
+                <div style="flex: 1; text-align: center; position: relative; z-index: 1;">
+                  <div
+                    style="width: 56px; height: 56px; margin: 0 auto 24px; border-radius: 16px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.5); transition: transform 0.3s ease;">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                  </div>
+                  <h3 style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">1. Selección</h3>
+                  <p style="font-size: 13px; color: #888888; line-height: 1.5; padding: 0 10px;">Elige en tu panel la
+                    herramienta diseñada para la tarea que deseas resolver hoy.</p>
+                </div>
+
+                <div style="flex: 1; text-align: center; position: relative; z-index: 1;">
+                  <div
+                    style="width: 56px; height: 56px; margin: 0 auto 24px; border-radius: 16px; background: #1a1a1a; border: 1px solid rgba(229,57,53,0.6); display: flex; align-items: center; justify-content: center; color: var(--red-400); box-shadow: 0 8px 24px rgba(229,57,53,0.25), inset 0 0 20px rgba(229,57,53,0.15); transition: transform 0.3s ease;">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                    </svg>
+                  </div>
+                  <h3 style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">2. Configuración
+                  </h3>
+                  <p style="font-size: 13px; color: #888888; line-height: 1.5; padding: 0 10px;">Carga tu archivo de
+                    trabajo y ajusta rápidamente los parámetros requeridos.</p>
+                </div>
+
+                <div style="flex: 1; text-align: center; position: relative; z-index: 1;">
+                  <div
+                    style="width: 56px; height: 56px; margin: 0 auto 24px; border-radius: 16px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.5); transition: transform 0.3s ease;">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  </div>
+                  <h3 style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">3. Resultado</h3>
+                  <p style="font-size: 13px; color: #888888; line-height: 1.5; padding: 0 10px;">Descarga tu información
+                    completamente procesada y lista para utilizar.</p>
+                </div>
+
+            </div>
           </div>
         </div>
 
-        <!-- Loading -->
-        <div id="loading-view" class="loader-box">
-          <div class="loader-bar"></div>
-          <div class="loader-text">Procesando y ajustando columnas...</div>
-        </div>
+        <!-- ESTADÍSTICAS ADMIN (Solo visible para administradores) -->
+        <div id="admin-dashboard-stats" style="display: none; margin-top: 40px;">
+          <h2 style="font-size:22px; font-weight: 700; margin-bottom: 24px; color: var(--text-primary); border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+            Resumen del Sistema</h2>
 
-        <!-- Result -->
-        <div id="result-view" class="result-hidden">
-          <div class="card">
-            <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">✓ Procesamiento Exitoso</h2>
-            <p style="color:var(--text-secondary);font-size:14px;margin-bottom:24px">El muestreo fue completado correctamente.</p>
-            <div class="stats-grid">
-              <div class="stat-box"><div class="stat-box-label">Filas de Entrada</div><div class="stat-box-value" id="valBefore">0</div></div>
-              <div class="stat-box"><div class="stat-box-label">Filas de Salida</div><div class="stat-box-value" id="valAfter">0</div></div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 24px;">
+            <div class="card" style="padding: 24px; background: var(--bg-surface); border: 1px solid var(--border-default); display: flex; flex-direction: column; justify-content: center;">
+              <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 20px; color: var(--text-primary); text-align: center;">
+                Métricas Globales</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                  <span style="color: var(--text-secondary); font-size: 15px;">Usuarios Registrados</span>
+                  <span id="statUsers" style="font-size: 24px; font-weight: 800; color: var(--text-primary);">0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                  <span style="color: var(--text-secondary); font-size: 15px;">Servicios Activos</span>
+                  <span id="statProducts"
+                    style="font-size: 24px; font-weight: 800; color: var(--text-primary);">0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: var(--text-secondary); font-size: 15px;">Licencias en Uso</span>
+                  <span id="statLicenses" style="font-size: 24px; font-weight: 800; color: var(--red-500);">0</span>
+                </div>
+              </div>
+
+              <div class="card"
+                style="padding: 24px; background: var(--bg-surface); border: 1px solid var(--border-default);">
+                <h3
+                  style="font-size: 15px; font-weight: 700; margin-bottom: 10px; color: var(--text-primary); text-align: center;">
+                  Atención: Próximas a Expirar (30 días)</h3>
+                <div id="expiringLicensesList" style="margin-top: 15px;">
+                  <div style="text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px;">Cargando...
+                  </div>
+                </div>
+              </div>
             </div>
-            <button class="btn btn-primary" id="downloadBtn">
-              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Descargar Archivo Generado
+
+            <div class="card"
+              style="padding: 24px; background: var(--bg-surface); border: 1px solid var(--border-default);">
+              <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 15px; color: var(--text-primary);">
+                Distribución de Licencias por Herramienta</h3>
+              <canvas id="licensesChart" style="width:100%; max-height: 300px;"></canvas>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ NO ACCESS VIEW ══ -->
+      <div class="view" id="view-no-access">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div>
+              <h1>Sin Acceso</h1>
+              <p>No tienes licencias activas</p>
+            </div>
+          </div>
+        </div>
+        <div class="view-body">
+          <div class="card" style="text-align:center;padding:48px 32px">
+            <svg width="48" height="48" fill="none" stroke="var(--text-muted)" stroke-width="1.5"
+              style="margin:0 auto 20px" viewBox="0 0 24 24">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <h2 style="font-size:20px;margin-bottom:10px;color:var(--text-secondary)">Sin licencias activas</h2>
+            <p style="color:var(--text-muted);font-size:14px;line-height:1.7">Tu cuenta no tiene productos
+              asignados.<br>Contacta al administrador para que te asigne acceso.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ VIEW: EXCEL PROCESSOR ══ -->
+      <div class="view" id="view-excel">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div class="page-header-left">
+              <div class="page-header-icon">
+                <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" viewBox="0 0 24 24">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <line x1="3" y1="9" x2="21" y2="9" />
+                  <line x1="3" y1="15" x2="21" y2="15" />
+                  <line x1="9" y1="3" x2="9" y2="21" />
+                </svg>
+              </div>
+              <div>
+                <h1>Procesador Excel</h1>
+                <p>Extracción automática de datos históricos por intervalo</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="view-body">
+
+          <!-- Expired notice -->
+          <div id="expired-view" style="display:none" class="expired-notice">
+            <h2>Licencia Expirada</h2>
+            <p>Tu acceso a esta herramienta ha expirado.<br>Contacta al administrador para renovarla.</p>
+          </div>
+
+          <!-- Main -->
+          <div id="main-view">
+            <div class="card">
+              <div class="settings-row" style="margin-bottom:20px">
+                <label for="intervalInput">Frecuencia de extracción (minutos)</label>
+                <input type="number" id="intervalInput" value="15" min="1" max="1440">
+              </div>
+              <div class="drop-area" id="dropArea">
+                <svg class="drop-area-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <div class="drop-area-title">Haga clic o arrastre su archivo aquí</div>
+                <div class="drop-area-sub">Formatos compatibles: .xlsx · .xls</div>
+              </div>
+              <input type="file" id="fileInput" accept=".xlsx,.xls">
+              <div id="errorText" class="inline-error"></div>
+            </div>
+          </div>
+
+          <!-- Loading -->
+          <div id="loading-view" class="loader-box">
+            <div class="loader-bar"></div>
+            <div class="loader-text">Procesando y ajustando columnas...</div>
+          </div>
+
+          <!-- Result -->
+          <div id="result-view" class="result-hidden">
+            <div class="card">
+              <h2 style="font-size:20px;font-weight:800;margin-bottom:6px">✓ Procesamiento Exitoso</h2>
+              <p style="color:var(--text-secondary);font-size:14px;margin-bottom:24px">El muestreo fue completado
+                correctamente.</p>
+              <div class="stats-grid">
+                <div class="stat-box">
+                  <div class="stat-box-label">Filas de Entrada</div>
+                  <div class="stat-box-value" id="valBefore">0</div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-box-label">Filas de Salida</div>
+                  <div class="stat-box-value" id="valAfter">0</div>
+                </div>
+              </div>
+              <button class="btn btn-primary" id="downloadBtn">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Descargar Archivo Generado
+              </button>
+              <button class="btn btn-secondary" id="resetBtn">Procesar otro archivo</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ VIEW: CATALOG (USER) ══ -->
+      <div class="view" id="view-catalog">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div class="page-header-left">
+              <div class="page-header-icon" style="background:var(--red-gradient)">
+                <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+              </div>
+              <div>
+                <h1>Catálogo de Herramientas</h1>
+                <p>Explora y solicita acceso a las soluciones personalizadas disponibles.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="view-body">
+          <div class="products-grid" id="catalogGrid">
+            <div style="color:var(--text-muted);font-size:14px;padding:20px">Cargando catálogo...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ VIEW: ADMIN USERS ══ -->
+      <div class="view" id="view-users">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div class="page-header-left">
+              <div class="page-header-icon">
+                <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round" viewBox="0 0 24 24">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+              <div>
+                <h1>Usuarios</h1>
+                <p>Gestión de cuentas del sistema</p>
+              </div>
+            </div>
+            <div class="header-stats">
+              <div class="header-stat">
+                <div class="header-stat-value" id="statTotal">—</div>
+                <div class="header-stat-label">Total</div>
+              </div>
+              <div class="header-stat">
+                <div class="header-stat-value" id="statAdmins">—</div>
+                <div class="header-stat-label">Admins</div>
+              </div>
+              <div class="header-stat">
+                <div class="header-stat-value" id="statUsers">—</div>
+                <div class="header-stat-label">Usuarios</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="view-body">
+          <div class="table-card">
+            <div class="table-header">
+              <span class="table-header-title">Usuarios Registrados</span>
+              <button onclick="loadAdminUsers()"
+                style="font-size:12px;color:var(--text-secondary);padding:6px 12px;border-radius:5px;border:1px solid var(--border-default);background:var(--bg-surface);cursor:pointer">↻
+                Actualizar</button>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Usuario</th>
+                    <th>Username</th>
+                    <th>Teléfono</th>
+                    <th>Rol</th>
+                    <th>Registro</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                  <tr>
+                    <td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Cargando...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ VIEW: ADMIN PRODUCTS ══ -->
+      <div class="view" id="view-products">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div class="page-header-left">
+              <div class="page-header-icon">
+                <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+                  <rect x="2" y="3" width="20" height="14" rx="2" />
+                  <line x1="8" y1="21" x2="16" y2="21" />
+                  <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+              </div>
+              <div>
+                <h1>Productos</h1>
+                <p>Herramientas disponibles en la plataforma</p>
+              </div>
+            </div>
+            <div class="header-stats">
+              <div class="header-stat">
+                <div class="header-stat-value" id="statProdTotal">—</div>
+                <div class="header-stat-label">Total</div>
+              </div>
+              <div class="header-stat">
+                <div class="header-stat-value" id="statProdActive">—</div>
+                <div class="header-stat-label">Activos</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="view-body">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+            <button onclick="openNewProductModal()" class="btn btn-primary"
+              style="width:auto;padding:10px 20px;font-size:13px">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Nuevo Producto
             </button>
-            <button class="btn btn-secondary" id="resetBtn">Procesar otro archivo</button>
+          </div>
+          <div class="products-grid" id="productsGrid">
+            <div style="color:var(--text-muted);font-size:14px;padding:20px">Cargando...</div>
           </div>
         </div>
-
       </div>
-    </div>
 
-    <!-- ══ VIEW: ADMIN USERS ══ -->
-    <div class="view" id="view-users">
-      <div class="page-header">
-        <div class="page-header-inner">
-          <div class="page-header-left">
-            <div class="page-header-icon">
-              <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <!-- ══ VIEW: ADMIN LICENSES ══ -->
+      <div class="view" id="view-licenses">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div class="page-header-left">
+              <div class="page-header-icon">
+                <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+              </div>
+              <div>
+                <h1>Licencias</h1>
+                <p>Asignación de productos por usuario</p>
+              </div>
             </div>
-            <div><h1>Usuarios</h1><p>Gestión de cuentas del sistema</p></div>
-          </div>
-          <div class="header-stats">
-            <div class="header-stat"><div class="header-stat-value" id="statTotal">—</div><div class="header-stat-label">Total</div></div>
-            <div class="header-stat"><div class="header-stat-value" id="statAdmins">—</div><div class="header-stat-label">Admins</div></div>
-            <div class="header-stat"><div class="header-stat-value" id="statUsers">—</div><div class="header-stat-label">Usuarios</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="view-body">
-        <div class="table-card">
-          <div class="table-header">
-            <span class="table-header-title">Usuarios Registrados</span>
-            <button onclick="loadAdminUsers()" style="font-size:12px;color:var(--text-secondary);padding:6px 12px;border-radius:5px;border:1px solid var(--border-default);background:var(--bg-surface);cursor:pointer">↻ Actualizar</button>
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>#</th><th>Usuario</th><th>Username</th><th>Teléfono</th><th>Rol</th><th>Registro</th><th>Acciones</th></tr></thead>
-              <tbody id="usersTableBody"><tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">Cargando...</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══ VIEW: ADMIN PRODUCTS ══ -->
-    <div class="view" id="view-products">
-      <div class="page-header">
-        <div class="page-header-inner">
-          <div class="page-header-left">
-            <div class="page-header-icon">
-              <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <div class="header-stats">
+              <div class="header-stat">
+                <div class="header-stat-value" id="statLicTotal">—</div>
+                <div class="header-stat-label">Total</div>
+              </div>
+              <div class="header-stat">
+                <div class="header-stat-value" id="statLicActive">—</div>
+                <div class="header-stat-label">Activas</div>
+              </div>
+              <div class="header-stat">
+                <div class="header-stat-value" id="statLicExpired">—</div>
+                <div class="header-stat-label">Expiradas</div>
+              </div>
             </div>
-            <div><h1>Productos</h1><p>Herramientas disponibles en la plataforma</p></div>
-          </div>
-          <div class="header-stats">
-            <div class="header-stat"><div class="header-stat-value" id="statProdTotal">—</div><div class="header-stat-label">Total</div></div>
-            <div class="header-stat"><div class="header-stat-value" id="statProdActive">—</div><div class="header-stat-label">Activos</div></div>
           </div>
         </div>
-      </div>
-      <div class="view-body">
-        <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
-          <button onclick="openNewProductModal()" class="btn btn-primary" style="width:auto;padding:10px 20px;font-size:13px">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Nuevo Producto
-          </button>
-        </div>
-        <div class="products-grid" id="productsGrid">
-          <div style="color:var(--text-muted);font-size:14px;padding:20px">Cargando...</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══ VIEW: ADMIN LICENSES ══ -->
-    <div class="view" id="view-licenses">
-      <div class="page-header">
-        <div class="page-header-inner">
-          <div class="page-header-left">
-            <div class="page-header-icon">
-              <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <div class="view-body">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
+            <button onclick="openAssignLicenseModal()" class="btn btn-primary"
+              style="width:auto;padding:10px 20px;font-size:13px">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <line x1="12" y1="8" x2="12" y2="14" />
+                <line x1="9" y1="11" x2="15" y2="11" />
+              </svg>
+              Asignar Licencia
+            </button>
+          </div>
+          <div class="table-card">
+            <div class="table-header">
+              <span class="table-header-title">Licencias Asignadas</span>
+              <button onclick="loadAdminLicenses()"
+                style="font-size:12px;color:var(--text-secondary);padding:6px 12px;border-radius:5px;border:1px solid var(--border-default);background:var(--bg-surface);cursor:pointer">↻
+                Actualizar</button>
             </div>
-            <div><h1>Licencias</h1><p>Asignación de productos por usuario</p></div>
-          </div>
-          <div class="header-stats">
-            <div class="header-stat"><div class="header-stat-value" id="statLicTotal">—</div><div class="header-stat-label">Total</div></div>
-            <div class="header-stat"><div class="header-stat-value" id="statLicActive">—</div><div class="header-stat-label">Activas</div></div>
-            <div class="header-stat"><div class="header-stat-value" id="statLicExpired">—</div><div class="header-stat-label">Expiradas</div></div>
-          </div>
-        </div>
-      </div>
-      <div class="view-body">
-        <div style="display:flex;justify-content:flex-end;margin-bottom:4px">
-          <button onclick="openAssignLicenseModal()" class="btn btn-primary" style="width:auto;padding:10px 20px;font-size:13px">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="14"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
-            Asignar Licencia
-          </button>
-        </div>
-        <div class="table-card">
-          <div class="table-header">
-            <span class="table-header-title">Licencias Asignadas</span>
-            <button onclick="loadAdminLicenses()" style="font-size:12px;color:var(--text-secondary);padding:6px 12px;border-radius:5px;border:1px solid var(--border-default);background:var(--bg-surface);cursor:pointer">↻ Actualizar</button>
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Usuario</th><th>Producto</th><th>Vencimiento</th><th>Estado</th><th>Acciones</th></tr></thead>
-              <tbody id="licensesTableBody"><tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">Cargando...</td></tr></tbody>
-            </table>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Usuario</th>
+                    <th>Producto</th>
+                    <th>Vencimiento</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="licensesTableBody">
+                  <tr>
+                    <td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">Cargando...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-  </main>
+      <!-- ══ VIEW: ADMIN REQUESTS ══ -->
+      <div class="view" id="view-requests">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div class="page-header-left">
+              <div class="page-header-icon" style="background:var(--red-gradient)">
+                <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <div>
+                <h1>Solicitudes de Herramientas</h1>
+                <p>Gestiona el acceso solicitado por los clientes a las soluciones.</p>
+              </div>
+            </div>
+            <div class="header-stats">
+              <div class="header-stat">
+                <div class="header-stat-value" id="statReqPending">—</div>
+                <div class="header-stat-label">Pendientes</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="view-body">
+          <div id="requestsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+            <div style="color:var(--text-muted);font-size:14px;padding:20px;text-align:center;grid-column:1/-1;">Cargando...</div>
+          </div>
+        </div>
+      </div>
 
-</div><!-- /app-screen -->
+    </main>
 
-<!-- ══════════════════════════════════════════════════════════════
+  </div><!-- /app-screen -->
+
+  <!-- ══════════════════════════════════════════════════════════════
      MODAL (reusable)
      ══════════════════════════════════════════════════════════════ -->
-<div class="modal-overlay" id="mainModal">
-  <div class="modal-card">
-    <div class="modal-head">
-      <h3 id="modalTitle">Título</h3>
-      <button class="modal-close-btn" id="modalCloseBtn">✕</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-foot">
-      <button class="btn btn-secondary" id="modalCancelBtn" style="width:auto">Cancelar</button>
-      <button class="btn btn-primary"   id="modalSubmitBtn" style="width:auto">Guardar</button>
+  <div class="modal-overlay" id="mainModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="modalTitle">Título</h3>
+        <button class="modal-close-btn" id="modalCloseBtn">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" id="modalCancelBtn" style="width:auto">Cancelar</button>
+        <button class="btn btn-primary" id="modalSubmitBtn" style="width:auto">Guardar</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Toast notification -->
-<div id="toast"></div>
+  <!-- Toast notification -->
+  <div id="toast"></div>
 
-<script src="js/app.js"></script>
+  <script src="js/app.js"></script>
 </body>
+
 </html>

@@ -4,10 +4,10 @@ services:
     container_name: exel-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: Panama26
+      MYSQL_ROOT_PASSWORD: Panama24
       MYSQL_DATABASE: exeldb
       MYSQL_USER: Administrador
-      MYSQL_PASSWORD: Panama26
+      MYSQL_PASSWORD: Panama24
     ports:
       - "3306:3306"
     volumes:
@@ -24,7 +24,7 @@ services:
     environment:
       DB_HOST: mysql
       DB_USER: Administrador
-      DB_PASSWORD: Panama26
+      DB_PASSWORD: Panama24
       DB_NAME: exeldb
       PORT: 80
 

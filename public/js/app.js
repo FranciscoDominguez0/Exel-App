@@ -141,8 +141,10 @@ async function enterApp() {
   document.getElementById('navUserRole').className = sessionUser.role === 'admin' ? 'user-role admin' : 'user-role';
   document.getElementById('userAvatar').textContent = sessionUser.nombre.charAt(0).toUpperCase();
 
-  // Show/hide admin nav
+  // Show/hide admin nav and tools section
   document.getElementById('adminNav').style.display = sessionUser.role === 'admin' ? 'block' : 'none';
+  document.getElementById('toolsSection').style.display = sessionUser.role === 'admin' ? 'none' : 'block';
+  document.getElementById('navItemCatalog').style.display = sessionUser.role === 'admin' ? 'none' : 'flex';
 
   // Show app screen
   document.getElementById('auth-screen').classList.remove('active');
@@ -151,18 +153,11 @@ async function enterApp() {
   // Build sidebar tools from user's licenses
   const activeProducts = await buildSidebarTools();
 
-  // Default view: admins go to Licenses panel, users go to first valid tool
+  // Everyone lands on the Dashboard by default
+  switchView('dashboard');
+  
   if (sessionUser.role === 'admin') {
-    switchView('licenses');
-  } else {
-    // Only allow switching to a tool if its product is still active
-    const firstValid = sessionUser.licenses?.find(l => 
-      l.valid && 
-      TOOLS[l.productSlug] && 
-      activeProducts?.some(p => p.slug === l.productSlug)
-    );
-    if (firstValid) switchView(firstValid.productSlug);
-    else switchView('no-access');
+    loadDashboardStats();
   }
 }
 
@@ -172,6 +167,102 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   document.getElementById('app-screen').classList.remove('active');
   document.getElementById('auth-screen').classList.add('active');
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ADMIN DASHBOARD STATS
+// ═══════════════════════════════════════════════════════════════════════════
+
+let rolesChartInstance = null;
+let licensesChartInstance = null;
+
+async function loadDashboardStats() {
+  document.getElementById('admin-dashboard-stats').style.display = 'block';
+  const userInstructions = document.getElementById('user-dashboard-instructions');
+  if (userInstructions) userInstructions.style.display = 'none';
+  
+  let stats = { totalUsers: 0, totalProducts: 0, activeLicenses: 0 };
+  let expiringLicenses = [];
+  let licensesByProduct = [];
+  
+  try {
+    const res = await fetch('/api/admin/stats', { headers: authHeaders() });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.stats) {
+        stats = data.stats;
+        expiringLicenses = data.expiringLicenses || expiringLicenses;
+        licensesByProduct = data.licensesByProduct || licensesByProduct;
+      } else {
+        alert("El backend conectó, pero reportó un error interno: " + (data.error || "Desconocido"));
+      }
+    } else {
+      alert("Error HTTP conectando al servidor: " + res.status);
+    }
+  } catch (e) {
+    alert("Error de red intentando conectar con /api/admin/stats: " + e.message);
+    console.warn('No se pudieron cargar las estadísticas del servidor, mostrando ceros.', e);
+  }
+
+  // Update DOM numbers
+  document.getElementById('statUsers').textContent = stats.totalUsers;
+  document.getElementById('statProducts').textContent = stats.totalProducts;
+  document.getElementById('statLicenses').textContent = stats.activeLicenses;
+  
+  // Render Expiring Licenses List
+  const expiringContainer = document.getElementById('expiringLicensesList');
+  if (expiringLicenses.length === 0) {
+    expiringContainer.innerHTML = '<div style="text-align: center; color: var(--green-500); font-size: 13px; padding: 20px; font-weight: 600;"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:block;margin:0 auto 10px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Todo en orden. No hay licencias próximas a expirar.</div>';
+  } else {
+    expiringContainer.innerHTML = expiringLicenses.map(l => {
+      const daysLeft = Math.ceil((l.expiration - Date.now()) / (1000 * 60 * 60 * 24));
+      const isCritical = daysLeft <= 7;
+      return `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-subtle);">
+          <div>
+            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">${l.user}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">${l.product}</div>
+          </div>
+          <div style="font-size: 12px; font-weight: 700; color: ${isCritical ? 'var(--red-500)' : 'var(--orange-400)'}; background: ${isCritical ? 'rgba(229,57,53,0.1)' : 'rgba(255,167,38,0.1)'}; padding: 4px 8px; border-radius: 4px;">
+            Faltan ${daysLeft} ${daysLeft === 1 ? 'día' : 'días'}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Render Licenses Bar Chart
+  const ctxLicenses = document.getElementById('licensesChart').getContext('2d');
+  if (licensesChartInstance) licensesChartInstance.destroy();
+
+  const labels = licensesByProduct.length > 0 ? licensesByProduct.map(p => p.name) : ['Sin Datos'];
+  const data = licensesByProduct.length > 0 ? licensesByProduct.map(p => p.count) : [0];
+
+  licensesChartInstance = new Chart(ctxLicenses, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Licencias Activas',
+        data: data,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1, color: '#888' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+        x: { ticks: { color: '#888' }, grid: { display: false } }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SIDEBAR — DYNAMIC TOOL BUILDING
@@ -301,9 +392,11 @@ function updateLicenseBadge(licenses) {
 // VIEW SWITCHER
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Admin nav items
+// Static nav items (Dashboard, Admin items)
 document.querySelectorAll('.nav-item[data-view]').forEach(item => {
-  if (item.closest('#adminNav')) {
+  // Tools are injected dynamically and attach their own listeners
+  // But static HTML buttons need it attached here
+  if (!item.closest('#toolsSection')) {
     item.addEventListener('click', () => { switchView(item.dataset.view); closeSidebar(); });
   }
 });
@@ -318,6 +411,8 @@ function switchView(viewId) {
   if (viewId === 'users')    loadAdminUsers();
   if (viewId === 'products') loadAdminProducts();
   if (viewId === 'licenses') loadAdminLicenses();
+  if (viewId === 'catalog')  loadCatalog();
+  if (viewId === 'requests') loadAdminRequests();
 }
 
 // Mobile sidebar
@@ -613,7 +708,16 @@ async function loadAdminLicenses() {
 }
 
 function openAssignLicenseModal() {
-  const userOpts = _allUsers.map(u => `<option value="${u.id}">${u.nombre} ${u.apellido} (@${u.username})</option>`).join('');
+  const userOpts = _allUsers
+    .filter(u => u.role !== 'admin')
+    .map(u => `<option value="${u.id}">${u.nombre} ${u.apellido} (@${u.username})</option>`)
+    .join('');
+    
+  if (!userOpts) {
+    showToast('No hay usuarios normales (no admin) disponibles para asignar licencias.', 'info');
+    return;
+  }
+
   const prodOpts = _allProducts.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
 
   // Default expiry: today + 30 days
@@ -808,6 +912,221 @@ const processFile = file => {
   };
   reader.readAsArrayBuffer(file);
 };
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CATALOG (USER)
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function loadCatalog() {
+  const grid = document.getElementById('catalogGrid');
+  grid.innerHTML = `<div style="color:var(--text-muted);font-size:14px;padding:20px;grid-column:1/-1;text-align:center;">Cargando catálogo...</div>`;
+  
+  try {
+    const res = await fetch('/api/admin/products/catalog', { headers: authHeaders() });
+    const data = await res.json();
+    if (data.success) {
+      if (data.catalog.length === 0) {
+        grid.innerHTML = `<div style="color:var(--text-muted);font-size:14px;padding:20px;grid-column:1/-1;text-align:center;">No hay herramientas disponibles en el catálogo en este momento.</div>`;
+        return;
+      }
+      grid.innerHTML = data.catalog.map(p => {
+        let actionHTML = '';
+        if (p.hasAccess) {
+          actionHTML = `<button style="width:100%; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.1); cursor: default; font-weight: 600; font-size: 13px;" disabled>✓ Ya tienes acceso</button>`;
+        } else if (p.isRequested) {
+          actionHTML = `<button style="width:100%; padding: 12px; border-radius: 12px; background: rgba(255,167,38,0.1); color: var(--orange-400); border: 1px solid rgba(255,167,38,0.2); cursor: default; font-weight: 600; font-size: 13px;" disabled>⏳ Solicitud Pendiente</button>`;
+        } else {
+          actionHTML = `<button class="btn btn-primary" onclick="requestTool(${p.id}, this)" style="width:100%; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 13px; background: linear-gradient(135deg, var(--red-500), var(--red-600)); border: none; box-shadow: 0 4px 15px rgba(229,57,53,0.3); transition: transform 0.2s, box-shadow 0.2s;">Solicitar Acceso</button>`;
+        }
+
+        return `
+          <div style="
+            position: relative;
+            background: linear-gradient(145deg, rgba(30,30,30,0.6), rgba(20,20,20,0.8));
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          " onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(0,0,0,0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.3)';">
+            
+            <!-- Glow effect -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: radial-gradient(circle, rgba(229,57,53,0.2) 0%, rgba(0,0,0,0) 70%); border-radius: 50%; pointer-events: none;"></div>
+
+            <div style="display: flex; align-items: flex-start; gap: 16px;">
+              <div style="
+                width: 50px; height: 50px; border-radius: 14px;
+                background: linear-gradient(135deg, rgba(229,57,53,0.15), rgba(229,57,53,0.05));
+                border: 1px solid rgba(229,57,53,0.2);
+                display: flex; align-items: center; justify-content: center; color: var(--red-400);
+                box-shadow: inset 0 0 10px rgba(229,57,53,0.1);
+                flex-shrink: 0;
+              ">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" /></svg>
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <h3 style="font-size: 18px; font-weight: 700; color: #fff; margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</h3>
+                <div style="font-size: 12px; font-family: monospace; color: var(--red-400); background: rgba(229,57,53,0.1); padding: 2px 8px; border-radius: 20px; display: inline-block;">@${p.slug}</div>
+              </div>
+            </div>
+            
+            <p style="font-size: 14px; line-height: 1.5; color: #a0a0a0; flex: 1; margin: 0;">${p.description || 'Una herramienta diseñada para optimizar y transformar la manera en que operas.'}</p>
+            
+            <div style="margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
+              ${actionHTML}
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      grid.innerHTML = `<div style="color:var(--red-400);font-size:14px;padding:20px;grid-column:1/-1;text-align:center;">${data.error || 'Error cargando catálogo'}</div>`;
+    }
+  } catch (e) {
+    grid.innerHTML = `<div style="color:var(--red-400);font-size:14px;padding:20px;grid-column:1/-1;text-align:center;">Error de conexión.</div>`;
+  }
+}
+
+async function requestTool(productId, btn) {
+  const originalText = btn.innerHTML;
+  btn.innerHTML = 'Enviando...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/admin/products/request', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ productId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Solicitud enviada al administrador.', 'success');
+      btn.outerHTML = `<button class="btn" style="background:rgba(255,167,38,0.1);color:var(--orange-400);cursor:default" disabled>⏳ Solicitud Pendiente</button>`;
+    } else {
+      showToast(data.error || 'Error al enviar solicitud.', 'error');
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+  } catch (e) {
+    showToast('Error de conexión.', 'error');
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ADMIN — REQUESTS
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function loadAdminRequests() {
+  const grid = document.getElementById('requestsGrid');
+  grid.innerHTML = `<div style="color:var(--text-muted);font-size:14px;padding:20px;grid-column:1/-1;text-align:center;">Cargando...</div>`;
+
+  try {
+    const res = await fetch('/api/admin/requests', { headers: authHeaders() });
+    const data = await res.json();
+
+    if (data.success) {
+      const pendingCount = data.requests.filter(r => r.status === 'pending').length;
+      document.getElementById('statReqPending').textContent = pendingCount;
+
+      if (!data.requests.length) {
+        grid.innerHTML = `<div style="color:var(--text-muted);font-size:14px;padding:40px;grid-column:1/-1;text-align:center;">No hay solicitudes registradas.</div>`;
+        return;
+      }
+
+      grid.innerHTML = data.requests.map(r => {
+        const date = new Date(r.created_at).toLocaleDateString('es', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        
+        let statusBadge = '';
+        let actionButtons = '';
+        if (r.status === 'pending') {
+          statusBadge = `<div style="font-size: 11px; font-weight: 700; color: var(--orange-400); background: rgba(255,167,38,0.1); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(255,167,38,0.2); display: inline-flex; align-items: center; gap: 6px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: var(--orange-400); box-shadow: 0 0 5px var(--orange-400);"></span>Pendiente</div>`;
+          actionButtons = `
+            <button onclick="approveRequest(${r.id})" style="flex: 1; padding: 10px; border-radius: 10px; font-weight: 600; font-size: 13px; background: rgba(76,175,80,0.15); color: #4caf50; border: 1px solid rgba(76,175,80,0.3); transition: all 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(76,175,80,0.25)'" onmouseout="this.style.background='rgba(76,175,80,0.15)'">Aprobar</button>
+            <button onclick="rejectRequest(${r.id})" style="flex: 1; padding: 10px; border-radius: 10px; font-weight: 600; font-size: 13px; background: rgba(229,57,53,0.1); color: var(--red-400); border: 1px solid rgba(229,57,53,0.2); transition: all 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(229,57,53,0.2)'" onmouseout="this.style.background='rgba(229,57,53,0.1)'">Rechazar</button>
+          `;
+        } else if (r.status === 'approved') {
+          statusBadge = `<div style="font-size: 11px; font-weight: 700; color: #4caf50; background: rgba(76,175,80,0.1); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(76,175,80,0.2); display: inline-flex; align-items: center; gap: 6px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #4caf50;"></span>Aprobada</div>`;
+          actionButtons = `<div style="flex: 1; padding: 10px; text-align: center; color: var(--text-muted); font-size: 12px; border-top: 1px solid rgba(255,255,255,0.05);">Resuelta</div>`;
+        } else {
+          statusBadge = `<div style="font-size: 11px; font-weight: 700; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); display: inline-flex; align-items: center; gap: 6px;"><span style="width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted);"></span>Rechazada</div>`;
+          actionButtons = `<div style="flex: 1; padding: 10px; text-align: center; color: var(--text-muted); font-size: 12px; border-top: 1px solid rgba(255,255,255,0.05);">Resuelta</div>`;
+        }
+
+        return `
+          <div style="
+            background: linear-gradient(145deg, rgba(30,30,30,0.4), rgba(20,20,20,0.6));
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+          " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <div>
+                <div style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px;">${r.nombre} ${r.apellido}</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">@${r.username}</div>
+              </div>
+              ${statusBadge}
+            </div>
+
+            <div style="background: rgba(0,0,0,0.2); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px;">
+              <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(229,57,53,0.1); display: flex; align-items: center; justify-content: center; color: var(--red-400);">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </div>
+              <div>
+                <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;">Herramienta Solicitada</div>
+                <div style="font-size: 14px; font-weight: 600; color: #fff;">${r.product_name}</div>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-muted);">
+              <span>Fecha de solicitud</span>
+              <span>${date}</span>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: auto;">
+              ${actionButtons}
+            </div>
+          </div>
+        `;
+      }).join('');
+    } else {
+      grid.innerHTML = `<div style="color:var(--red-400);font-size:14px;padding:20px;grid-column:1/-1;text-align:center;">${data.error || 'Error'}</div>`;
+    }
+  } catch (e) {
+    grid.innerHTML = `<div style="color:var(--red-400);font-size:14px;padding:20px;grid-column:1/-1;text-align:center;">Error de conexión.</div>`;
+  }
+}
+
+async function approveRequest(id) {
+  if (!confirm('¿Aprobar esta solicitud? Se asignarán 30 días de licencia automáticamente.')) return;
+  try {
+    const res = await fetch(`/api/admin/requests/${id}/approve`, { method: 'PATCH', headers: authHeaders() });
+    const data = await res.json();
+    if (data.success) { showToast('Solicitud aprobada y licencia asignada.'); loadAdminRequests(); }
+    else showToast(data.error || 'Error al aprobar.', 'error');
+  } catch (e) { showToast('Error.', 'error'); }
+}
+
+async function rejectRequest(id) {
+  if (!confirm('¿Rechazar esta solicitud?')) return;
+  try {
+    const res = await fetch(`/api/admin/requests/${id}/reject`, { method: 'PATCH', headers: authHeaders() });
+    const data = await res.json();
+    if (data.success) { showToast('Solicitud rechazada.'); loadAdminRequests(); }
+    else showToast(data.error || 'Error al rechazar.', 'error');
+  } catch (e) { showToast('Error.', 'error'); }
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INIT
